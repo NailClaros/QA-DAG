@@ -1,7 +1,12 @@
+ALTER TABLE aq_data.daily_measurements
+ADD CONSTRAINT uq_daily UNIQUE (location, sensor_name_units, date_inserted);
+
+
 CREATE TABLE AQ_data.daily_measurements (
     id SERIAL PRIMARY KEY,
     location TEXT NOT NULL,
     sensor_name_units TEXT NOT NULL,
     measurement NUMERIC,
-    date_inserted DATE NOT NULL DEFAULT CURRENT_DATE
+    date_inserted DATE NOT NULL 
 );
+
