@@ -16,7 +16,7 @@ def mass_insert_data(data):
                         (row[0], row[1], row[2], row[3]))
             conn.commit()
             cur.close()
-        print(f"\nData has been sent! {len(data)} rows inserted.")
+        print(f"\nData has been sent! {len(data)} rows (ATTEMPTED to be)inserted.")
     except Exception as e:
         print("Error during data insertion:", e)
     finally:
