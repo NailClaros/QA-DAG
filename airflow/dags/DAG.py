@@ -1,22 +1,12 @@
-from __future__ import annotations
-import os
-import datetime as dt
-import requests
-from typing import List, Dict, Tuple
-
-from airflow.decorators import dag, task
-from airflow.providers.postgres.hooks.postgres import PostgresHook
 from dotenv import load_dotenv
-
+from airflow.sdk import dag, task
+import datetime as dt
 load_dotenv()
+import os
+import requests
+import psycopg2
+import logging
 
-# Default arguments
-DEFAULT_ARGS = {
-    "owner": "data-eng",
-    "retries": 2,
-}
-
-# Constants
 UNIT_LIST = [2324, 1307714, 4272428, 25516, 12915154, 1188, 1758, 3952, 4272273, 3316, 3324, 4272325]
 LOC_DICT = {
     "Garinger, NC": 1297,
@@ -24,81 +14,90 @@ LOC_DICT = {
     "Elizabeth, NJ": 971,
     "Miami, FL": 1877
 }
-API_KEY = os.getenv("QA_API_KEY", "___")
+
+DB_URL = os.getenv("DB_URL", "____")
+API_KEY = os.getenv("QA_API_KEY", "____")
 API_BASE = "https://api.openaq.org/v3"
 
-today = dt.date.today().strftime("%Y-%m-%d")
 
-# DAG definition
+default_args = {
+    "owner": "data-eng",
+    "depends_on_past": False,
+    "retries": 2,
+    "retry_delay": dt.timedelta(minutes=5),
+}
+
+logger = logging.getLogger(__name__)
+
 @dag(
-    dag_id="qa_daily_ingest",
-    start_date=dt.datetime(2025, 8, 1),
+    dag_id="AQ_DAG",
     schedule="@daily",
-    catchup=False,  
-    default_args=DEFAULT_ARGS,
-    tags=["qa", "openaq"],
+    start_date=dt.datetime(2025, 8, 22),
+    catchup=False,
 )
-def qa_daily_ingest():
+def run_dag():
 
-    # Step 1: Fetch sensors for each location
     @task
-    def fetch_sensors() -> Dict[str, List[Dict]]:
-        daily_sensors = {}
-        for location, location_id in LOC_DICT.items():
-            r = requests.get(f"{API_BASE}/locations/{location_id}/sensors",
-                             headers={"X-API-Key": API_KEY}, timeout=30)
-            r.raise_for_status()
-            daily_sensors[location] = r.json()["results"]
-        return daily_sensors
+    def extract():
+        logger.info("\nFetching daily data from OpenAQ...\n")
+        today = dt.date.today().strftime("%Y-%m-%d")
+        def get_daily_sensors(location_id):
+            r = requests.get(f"{API_BASE}/locations/{location_id}/sensors", 
+                             headers={"X-API-Key": API_KEY})
+            return r.json()["results"]
 
-    # Step 2: Fetch latest sensor values and normalize
-    @task
-    def fetch_and_normalize(sensors_by_location: Dict[str, List[Dict]]) -> List[Tuple]:
+        def get_daily_sensor_values(location_id):
+            r = requests.get(f"{API_BASE}/locations/{location_id}/latest",
+                             headers={"X-API-Key": API_KEY})
+            return r.json()["results"]
+
         row_data = []
-        for location, sensors in sensors_by_location.items():
-            r = requests.get(f"{API_BASE}/locations/{LOC_DICT[location]}/latest",
-                             headers={"X-API-Key": API_KEY}, timeout=30)
-            r.raise_for_status()
-            sensor_values = {s["sensorsId"]: s["value"] for s in r.json()["results"]
-                             if s["sensorsId"] in UNIT_LIST}
+        for location, location_id in LOC_DICT.items():
+            logger.info(f"-- Fetching data for {location} (ID: {location_id}) --")
+            sensors = get_daily_sensors(location_id)
+            sensor_values = get_daily_sensor_values(location_id)
+            
+            daily_data = {}
+            for sensor in sensor_values:
+                if sensor["sensorsId"] in UNIT_LIST:
+                    daily_data[sensor["sensorsId"]] = sensor["value"]
 
             for sensor in sensors:
-                if sensor["id"] not in UNIT_LIST:
-                    continue
-                sid = sensor["id"]
-                row_data.append(
-                    [
+                if sensor["id"] in UNIT_LIST:
+                    param = f"{location} {sensor['parameter']['displayName']} {sensor['parameter']['units']}"
+                    row_data.append([
                         location,
                         f"{sensor['parameter']['displayName']} {sensor['parameter']['units']}",
-                        sensor_values.get(sid),
+                        daily_data.get(sensor["id"], None),
                         today
-                    ]
-                )
+                    ])
+        logger.info("\nData extraction complete.\n")
         return row_data
 
-    # Step 3: Insert data into database
     @task
-    def insert_rows(rows: List[Tuple]) -> int:
-        if not rows:
-            return 0
-        hook = PostgresHook(postgres_conn_id="neon_postgres")
-        sql = """
-        INSERT INTO aq_data.daily_measurements
-            (location, sensor_name_units, measurement, date_inserted)
-        VALUES (%s, %s, %s, %s)
-        ON CONFLICT (location, sensor_name_units, date_inserted)
-        DO NOTHING;
-        """
-        with hook.get_conn() as conn, conn.cursor() as cur:
-            cur.executemany(sql, rows)
-            conn.commit()
-        return len(rows)
+    def transform(row_data):
+        logger.info("Starting data transformation...")
+        transformed = [row for row in row_data if row[2] is not None]
+        logger.info(f"Transformation complete. {len(transformed)} rows kept.")
+        logger.info(f"Transformed data: {transformed}")
+        return transformed
 
-    # DAG flow
-    sensors = fetch_sensors()
-    rows = fetch_and_normalize(sensors)
-    inserted_count = insert_rows(rows)
+    @task
+    def load(transformed_data):
+        logger.info("Starting data load into the database...")
+        conn = psycopg2.connect(DB_URL)
+        cur = conn.cursor()
+        for row in transformed_data:
+            cur.execute("""INSERT INTO aq_data.daily_measurements 
+                        (location, sensor_name_units, measurement, date_inserted) VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (location, sensor_name_units, date_inserted) DO NOTHING""", 
+                        (row[0], row[1], row[2], row[3]))
+        conn.commit()
+        cur.close()
+        conn.close()
+        logger.info(f"Data load complete. {len(transformed_data)} rows inserted.")
+        logger.info("DAG run completed successfully.")
 
-    sensors >> rows >> inserted_count
+    load(transform(extract()))
 
-qa_daily_ingest()
+run_dag()
