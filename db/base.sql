@@ -10,3 +10,4 @@ CREATE TABLE AQ_data.daily_measurements (
     date_inserted DATE NOT NULL 
 );
 
+
