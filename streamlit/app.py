@@ -169,20 +169,29 @@ st.markdown("""
   - ⚠️ *Too High:* Over **70 ppb** can cause throat irritation, coughing, and worsen asthma.  
 """)
 
-with st.expander("ℹ️ About Me & System Architecture", expanded=True):
+with st.expander("ℹ️ About Me & System Architecture", expanded=False):
     st.markdown("""
 ## ℹ️ About Me & System Architecture
 
 ### Who I Am
-My name is Nail Claros. I am a Computer Science graduate from the University of North Carolina at Charlotte with a passion for backend and data engineering. I built this dashboard as a hands-on project to explore and demonstrate real-world skills in designing and deploying a full data pipeline—from raw data ingestion to interactive visualization.
+My name is Nail Claros. I am a Computer Science graduate from the University of North Carolina at Charlotte with a passion for **backend development and data engineering**. I built this dashboard as a hands-on project to explore and demonstrate the full lifecycle of a data pipeline—from raw data ingestion to interactive visualization—using real-world datasets.
 
 ### Project Overview
-This project was created to track **three air quality pollutants (NO, CO, PM2.5)** across **four locations** in the United States. I developed a **daily ETL pipeline D.A.G** using **Apache Airflow** to systematically extract, normalize, and load data into a **Neon Postgres database**. The pipeline runs reliably on a daily schedule and is containerized with **Docker**, ensuring reproducibility and ease of deployment across environments.
+This project tracks **three air quality pollutants (NO, CO, PM2.5)** across **four locations** in the United States. I developed a **daily ETL pipeline DAG** using **Apache Airflow**, which systematically extracts, normalizes, and loads data into a **Neon Postgres database**. The pipeline is **Dockerized**, ensuring reproducibility and seamless deployment across environments, while running reliably on a daily schedule.
 
 ### How the DAG Works
-- **Extraction:** For each location, the DAG pulls sensor metadata and the latest readings from the OpenAQ API.  
-- **Transformation:** The data is cleaned, filtered for relevant sensors, and standardized into a long-form format.  
-- **Loading:** Transformed data is inserted into the database with `ON CONFLICT DO NOTHING` to avoid duplicates.  
+- **Extraction:** The DAG queries the OpenAQ API for each location, retrieving sensor metadata and the latest measurements.  
+- **Transformation:** Data is cleaned, filtered for relevant sensors, and standardized into a long-form format suitable for storage and visualization.  
+- **Loading:** Cleaned data is inserted into the database with `ON CONFLICT DO NOTHING` to avoid duplicates.  
 
-This DAG includes logging, retry logic, and error handling, which makes it resilient to temporary API failures or missing data. Running the DAG in a Docker container ensures that the environment is consistent and reproducible, simulating a production-ready workflow.
+The DAG includes **logging, retry logic, and error handling**, making it resilient to temporary API failures or missing data. Docker ensures a consistent, reproducible environment that simulates a production-ready workflow.
+
+### Skills & System Design Highlights
+- **Data Engineering:** Designed and deployed a daily ETL pipeline in **Apache Airflow**, fully containerized with Docker. The pipeline automates extraction, transformation, and loading into **Neon Postgres**, ensuring accurate, reliable, and timely data delivery.  
+- **Backend Engineering:** Built containerized workflows integrating external APIs, database normalization, and query optimization. Incorporated error handling, retries, and logging to maintain pipeline stability under real-world conditions.  
+- **Cloud & System Integration:** Leveraged **Neon Postgres** for cloud persistence, **Docker** for environment reproducibility, and **Streamlit** for interactive, user-friendly visualization. This demonstrates end-to-end system design from ingestion to presentation.  
+- **Observability & Resilience:** Implemented logging, retry mechanisms, caching, and clear dashboard messaging. These measures ensure system reliability and improve user trust in the pipeline’s outputs.
+
+### Lessons Learned
+This project provided hands-on experience with **production-style data engineering practices**, including automated workflows, containerized deployment, cloud integration, and interactive analytics. It exemplifies the technical skills, problem-solving mindset, and system design understanding expected of an by Data Engineers, while delivering a fully maintainable and reproducible pipeline.
 """)

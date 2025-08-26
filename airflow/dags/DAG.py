@@ -64,7 +64,7 @@ def run_dag():
 
             for sensor in sensors:
                 if sensor["id"] in UNIT_LIST:
-                    param = f"{location} {sensor['parameter']['displayName']} {sensor['parameter']['units']}"
+                    param = f"{sensor['parameter']['displayName']} {sensor['parameter']['units']}"
                     row_data.append([
                         location,
                         param,
