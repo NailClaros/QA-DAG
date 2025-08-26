@@ -3,7 +3,7 @@
 ## QA-DAG is a lightweight orchestration framework for quality-assurance workflows using DAG-style pipelines. It includes both Airflow and Streamlit interfaces to visualize and run your processes.
 
 Repository Structure
-
+```
 ├── airflow/               # Airflow DAG definitions and logic
 ├── streamlit/             # Streamlit app for interactive viewing
 ├── db/                    # Database connection and utility scripts
@@ -12,7 +12,7 @@ Repository Structure
 ├── requirements.txt       # Python dependencies
 ├── .env.env               # Environment variable template or placeholder
 └── .gitignore             # Untracked files exclusion
-
+```
 ## About Me!
 
 Hi! I’m Nail Claros, a Computer Science graduate from UNC Charlotte with a passion for backend and data engineering. I specialize in building scalable data pipelines, backend APIs, backend engineering, and serverless solutions. This repository is a hands-on project where I explore:
