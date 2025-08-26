@@ -148,3 +148,23 @@ if not metric_df.empty:
     st.plotly_chart(fig_focus, use_container_width=True)
 else:
     st.warning(f"No data available for metric: {focus_metric}")
+
+st.markdown("### 📖 Understanding the Metrics")
+
+st.markdown("""
+- **PM2.5 (Fine Particulate Matter ≤2.5 μm)**  
+  These are very tiny particles that can get deep into the lungs and even enter the bloodstream.  
+  - ✅ *Ideal:* Below **12 µg/m³** (EPA standard for good air quality).  
+  - ⚠️ *Too High:* Over **35 µg/m³** in 24 hours can be unhealthy, especially for sensitive groups.  
+  - 🚨 *Concern:* Long-term exposure to high PM2.5 is linked to respiratory and cardiovascular issues.  
+
+- **PM10 (Coarse Particulate Matter ≤10 μm)**  
+  Larger particles like dust, pollen, and smoke. They don’t penetrate as deeply as PM2.5 but can still irritate lungs.  
+  - ✅ *Ideal:* Below **50 µg/m³**.  
+  - ⚠️ *Too High:* Above **150 µg/m³** (24-hour average) can trigger health advisories.  
+
+- **Ozone (O₃, Ground-level Ozone)**  
+  Unlike the protective ozone in the upper atmosphere, ground-level ozone forms from chemical reactions between sunlight, cars, and industry emissions.  
+  - ✅ *Ideal:* Below **50 ppb** (parts per billion).  
+  - ⚠️ *Too High:* Over **70 ppb** can cause throat irritation, coughing, and worsen asthma.  
+""")
