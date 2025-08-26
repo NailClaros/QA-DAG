@@ -168,3 +168,21 @@ st.markdown("""
   - ✅ *Ideal:* Below **50 ppb** (parts per billion).  
   - ⚠️ *Too High:* Over **70 ppb** can cause throat irritation, coughing, and worsen asthma.  
 """)
+
+with st.expander("ℹ️ About Me & System Architecture", expanded=True):
+    st.markdown("""
+## ℹ️ About Me & System Architecture
+
+### Who I Am
+My name is Nail Claros. I am a Computer Science graduate from the University of North Carolina at Charlotte with a passion for backend and data engineering. I built this dashboard as a hands-on project to explore and demonstrate real-world skills in designing and deploying a full data pipeline—from raw data ingestion to interactive visualization.
+
+### Project Overview
+This project was created to track **three air quality pollutants (NO, CO, PM2.5)** across **four locations** in the United States. I developed a **daily ETL pipeline D.A.G** using **Apache Airflow** to systematically extract, normalize, and load data into a **Neon Postgres database**. The pipeline runs reliably on a daily schedule and is containerized with **Docker**, ensuring reproducibility and ease of deployment across environments.
+
+### How the DAG Works
+- **Extraction:** For each location, the DAG pulls sensor metadata and the latest readings from the OpenAQ API.  
+- **Transformation:** The data is cleaned, filtered for relevant sensors, and standardized into a long-form format.  
+- **Loading:** Transformed data is inserted into the database with `ON CONFLICT DO NOTHING` to avoid duplicates.  
+
+This DAG includes logging, retry logic, and error handling, which makes it resilient to temporary API failures or missing data. Running the DAG in a Docker container ensures that the environment is consistent and reproducible, simulating a production-ready workflow.
+""")
