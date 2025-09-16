@@ -152,22 +152,25 @@ else:
 st.markdown("### 📖 Understanding the Metrics")
 
 st.markdown("""
+- **NO (Nitric Oxide)**  
+  A gas produced by combustion (cars, power plants, industrial processes). It quickly reacts in the air to form **nitrogen dioxide (NO₂)**, which is more harmful and contributes to smog.  
+  - ✅ *Ideal:* Below **25 ppm** (OSHA workplace limit).  
+  - ⚠️ *Too High:* Above **25 ppm** can irritate lungs and reduce oxygen exchange.  
+  - 🚨 *Concern:* At **35 ppm** and above, exposure can worsen asthma, cause breathing problems, and contribute to dangerous ground-level ozone and smog.  
+
+- **CO (Carbon Monoxide)**  
+  A colorless, odorless gas that binds to hemoglobin in the blood, reducing oxygen supply to vital organs. It comes from vehicles, heaters, stoves, and fires.  
+  - ✅ *Ideal:* Below **9 ppm** (EPA 8-hour standard).  
+  - ⚠️ *Too High:* Above **9 ppm** for several hours may affect people with heart or lung conditions.  
+  - 🚨 *Concern:* Higher levels (**50+ ppm**) can cause headaches, dizziness, nausea, and prolonged exposure at hundreds of ppm can be fatal.  
+
 - **PM2.5 (Fine Particulate Matter ≤2.5 μm)**  
-  These are very tiny particles that can get deep into the lungs and even enter the bloodstream.  
-  - ✅ *Ideal:* Below **12 µg/m³** (EPA standard for good air quality).  
-  - ⚠️ *Too High:* Over **35 µg/m³** in 24 hours can be unhealthy, especially for sensitive groups.  
-  - 🚨 *Concern:* Long-term exposure to high PM2.5 is linked to respiratory and cardiovascular issues.  
-
-- **PM10 (Coarse Particulate Matter ≤10 μm)**  
-  Larger particles like dust, pollen, and smoke. They don’t penetrate as deeply as PM2.5 but can still irritate lungs.  
-  - ✅ *Ideal:* Below **50 µg/m³**.  
-  - ⚠️ *Too High:* Above **150 µg/m³** (24-hour average) can trigger health advisories.  
-
-- **Ozone (O₃, Ground-level Ozone)**  
-  Unlike the protective ozone in the upper atmosphere, ground-level ozone forms from chemical reactions between sunlight, cars, and industry emissions.  
-  - ✅ *Ideal:* Below **50 ppb** (parts per billion).  
-  - ⚠️ *Too High:* Over **70 ppb** can cause throat irritation, coughing, and worsen asthma.  
+  Tiny particles from combustion, dust, and smoke. They penetrate deep into the lungs and can enter the bloodstream.  
+  - ✅ *Ideal:* Below **12 µg/m³** (EPA “good” air quality).  
+  - ⚠️ *Too High:* Above **35 µg/m³** (24-hour average) is unhealthy, especially for sensitive groups.  
+  - 🚨 *Concern:* Long-term exposure increases risk of asthma, lung disease, heart disease, and stroke.  
 """)
+
 
 with st.expander("ℹ️ About Me & System Architecture", expanded=False):
     st.markdown("""
