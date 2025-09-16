@@ -15,9 +15,14 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
+        options: >-
+          --health-cmd="pg_isready -U testuser -d testdb"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
 
     env:
-      DB_HOST: postgres   # must match service name
+      DB_HOST: postgres
       DB_NAME: testdb
       DB_USER: testuser
       DB_PASS: testpass
@@ -37,20 +42,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest psycopg2 requests python-dotenv
 
-      - name: Wait for Postgres to be ready
+      - name: Wait for Postgres service
         run: |
           echo "Waiting for Postgres..."
-          for i in {1..20}; do
-            pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME
-            if [ $? -eq 0 ]; then
-              echo "Postgres is ready!"
-              break
-            fi
+          until pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME; do
+            sleep 2
             echo "Postgres not ready yet..."
-            sleep 3
           done
+          echo "Postgres is ready!"
 
-      - name: Run tests
+      - name: Run pytest
         run: |
-          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
           python -m pytest tests/ -v
