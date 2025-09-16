@@ -3,6 +3,7 @@ name: Run Pytest
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -10,16 +11,19 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres
+        # Provide the password for postgres
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-          POSTGRES_DB: testdb
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
         options: >-
-          --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=10
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
 
     env:
       DB_HOST: postgres
