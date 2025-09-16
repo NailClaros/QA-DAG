@@ -9,10 +9,10 @@ load_dotenv()
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
     conn = psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASS")
+        host=os.getenv("DB_HOST", "postgres"),
+        dbname=os.getenv("DB_NAME", "testdb"),
+        user=os.getenv("DB_USER", "testuser"),
+        password=os.getenv("DB_PASS", "testpass")
     )
     cur = conn.cursor()
     cur.execute("""

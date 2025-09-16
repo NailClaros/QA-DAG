@@ -44,8 +44,5 @@ jobs:
       - name: Wait a few seconds for Postgres
         run: sleep 10
 
-      - name: Create test table
-        run: PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "CREATE TABLE IF NOT EXISTS sensor_data (id serial primary key, location text not null, sensor_name_units text not null, measurement real not null, date_inserted date not null, constraint uq_daily unique (location, sensor_name_units, date_inserted));"
-
       - name: Run tests
         run: python -m pytest tests/ -v
