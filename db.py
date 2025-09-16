@@ -22,3 +22,36 @@ def mass_insert_data(data):
     finally:
         conn.close()
 
+def test_db():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS")
+    )
+
+def clear_data_test_db():
+    conn = test_db()
+    cur = conn.cursor()
+    cur.execute("TRUNCATE TABLE sensor_data;")  
+    conn.commit()
+    conn.close()
+
+def get_all_data_test_db():
+    conn = test_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM sensor_data;")
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
+def insert_test_data(data):
+    conn = test_db()
+    for row in data:
+            cur = conn.cursor()
+            cur.execute("""INSERT INTO sensor_data 
+                        (location, sensor_name_units, measurement, date_inserted) VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (location, sensor_name_units, date_inserted) DO NOTHING""", 
+                        (row[0], row[1], row[2], row[3]))
+    conn.commit()
+    cur.close()
