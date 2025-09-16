@@ -15,9 +15,9 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
-          
+
     env:
-      DB_HOST: postgres
+      DB_HOST: postgres   # must match service name
       DB_NAME: testdb
       DB_USER: testuser
       DB_PASS: testpass
@@ -41,22 +41,16 @@ jobs:
         run: |
           echo "Waiting for Postgres..."
           for i in {1..20}; do
-            pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME && break
+            pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME
+            if [ $? -eq 0 ]; then
+              echo "Postgres is ready!"
+              break
+            fi
             echo "Postgres not ready yet..."
             sleep 3
           done
 
-      - name: Create test table
-        run: |
-          PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "
-          CREATE TABLE IF NOT EXISTS sensor_data (
-              id serial primary key,
-              location text not null,
-              sensor_name_units text not null,
-              measurement real not null,
-              date_inserted date not null,
-              constraint uq_daily unique (location, sensor_name_units, date_inserted)
-          );"
-
       - name: Run tests
-        run: python -m pytest tests/ -v
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+          python -m pytest tests/ -v
