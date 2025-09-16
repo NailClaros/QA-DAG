@@ -11,18 +11,17 @@ jobs:
     services:
       postgres:
         image: postgres:14
-        ports:
-          - 5432:5432
         env:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpass
           POSTGRES_DB: testdb
-        # Healthcheck makes sure Postgres is actually ready before tests run
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U testuser -d testdb"
-          --health-interval=10s
+          --health-interval=5s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     env:
       DB_HOST: postgres
@@ -37,22 +36,21 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+          pip install pytest psycopg2
 
       - name: Wait for Postgres
         run: |
-            for i in {1..10}; do
+          for i in {1..20}; do
+            pg_isready -h $DB_HOST -U $DB_USER -d $DB_NAME && echo "Postgres ready!" && break
             echo "Waiting for Postgres..."
-            PGPASSWORD=${{ secrets.DB_PASS }} psql -h postgres -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "SELECT 1;" && break
-            sleep 5
-            done
-
+            sleep 3
+          done
 
       - name: Create test table
         run: |
@@ -68,4 +66,4 @@ jobs:
           EOF
 
       - name: Run tests
-        run: python -m pytest tests/
+        run: python -m pytest tests/ -v
