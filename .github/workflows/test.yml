@@ -1,4 +1,4 @@
-name: Python Postgres Test
+name: AQ_DAG repo workflows and automated tests
 
 
 on:

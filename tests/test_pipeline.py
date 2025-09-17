@@ -2,9 +2,12 @@ import pytest
 from base_ import get_daily_data_test
 from db import clear_data_test_db, insert_test_data, get_all_data_test_db
 import psycopg2
-import os
+import os, sys
 from dotenv import load_dotenv
 load_dotenv()
+## for workflows
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
