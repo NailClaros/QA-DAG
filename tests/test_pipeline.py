@@ -1,8 +1,9 @@
 import pytest
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from base_ import get_daily_data_test
 from db import clear_data_test_db, insert_test_data, get_all_data_test_db
 import psycopg2
-import os, sys
 from dotenv import load_dotenv
 load_dotenv()
 
