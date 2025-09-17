@@ -3,10 +3,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
  
-conn = psycopg2.connect(os.getenv("DB_URL", "___"))
+
 
 def mass_insert_data(data):
     try:
+        conn = psycopg2.connect(os.getenv("DB_URL", "___"))
         print("\nInserting data into the database...\n")
         for row in data:
             cur = conn.cursor()
