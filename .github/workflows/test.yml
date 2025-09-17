@@ -50,3 +50,4 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
+          QA_API_KEY: ${{ secrets.QA_API_KEY }}
