@@ -9,11 +9,13 @@ load_dotenv()
 @pytest.fixture(autouse=True)
 def setup_and_teardown():
     conn = psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        dbname=os.getenv("DB_NAME", "testdb"),
-        user=os.getenv("DB_USER", "testuser"),
-        password=os.getenv("DB_PASS", "testpass")
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+        dbname=os.getenv("POSTGRES_DB", "postgres")
     )
+
     cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS sensor_data (

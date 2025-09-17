@@ -24,10 +24,11 @@ def mass_insert_data(data):
 
 def test_db():
     return psycopg2.connect(
-        host=os.getenv("DB_HOST", "postgres"),
-        dbname=os.getenv("DB_NAME", "testdb"),
-        user=os.getenv("DB_USER", "testuser"),
-        password=os.getenv("DB_PASS", "testpass")
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=os.getenv("POSTGRES_PORT", "5432"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
+        dbname=os.getenv("POSTGRES_DB", "postgres")
     )
 
 def clear_data_test_db():
