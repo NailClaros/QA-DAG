@@ -43,7 +43,7 @@ jobs:
 
       # Run a Python script against Postgres
       - name: Run Python Postgres client
-        run: pytest
+        run: PYTHONPATH=. pytest
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
