@@ -1,54 +1,23 @@
-import pytest
-import os
 from base import get_daily_data_test
-from db import clear_data_test_db, insert_test_data, get_all_data_test_db
-import psycopg2
-from dotenv import load_dotenv
-load_dotenv()
+from db import insert_test_data
 
-@pytest.fixture(autouse=True)
-def setup_and_teardown():
-    conn = psycopg2.connect(
-        host=os.getenv("POSTGRES_HOST", "localhost"),
-        port=os.getenv("POSTGRES_PORT", "5432"),
-        user=os.getenv("POSTGRES_USER", "postgres"),
-        password=os.getenv("POSTGRES_PASSWORD", "postgres"),
-        dbname=os.getenv("POSTGRES_DB", "postgres")
-    )
-
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS sensor_data (
-          id serial primary key,
-          location text not null,
-          sensor_name_units text not null,
-          measurement real not null,
-          date_inserted date not null,
-          constraint uq_daily unique (location, sensor_name_units, date_inserted)
-        );
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    """Clean DB before and after every test."""
-    clear_data_test_db()
-    yield
-
-def test_get_daily_data_inserts_rows():
-    rows = get_daily_data_test() 
+def test_get_daily_data_inserts_rows(db_rows):
+    rows, daily_sensors_code, daily_sensors_values_code = get_daily_data_test() 
+    assert len(rows) > 0, "Should insert at least one row from API"
+    assert daily_sensors_code == 200, "Daily sensors API call should be successful"
+    assert daily_sensors_values_code == 200, "Daily sensor values API call should be successful"
     
     insert_test_data(rows)
-    
-    assert len(rows) > 0, "Should insert at least one row from API"
-    
-    db_rows = get_all_data_test_db()
-    
-    assert len(db_rows) == len(rows), "DB row count should match inserted rows"
+    db_result = db_rows()
 
-    for row in db_rows:
+    # Row counts should match
+    assert len(db_result) == len(rows), "DB row count should match inserted rows"
+
+    # No column should be None
+    for row in db_result:
         for col_index, value in enumerate(row):
             assert value is not None, f"Column {col_index} in row {row} should not be None"
 
-    for row in db_rows:
+    # Measurement should always be numeric
+    for row in db_result:
         assert isinstance(row[3], (int, float)), f"Measurement should be numeric in row {row}"

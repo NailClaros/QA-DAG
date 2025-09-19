@@ -26,21 +26,22 @@ LOC_DICT = {
     "Miami, FL": 1877
 }
 
+def get_daily_sensors(location_id):
+    r = requests.get(f"{API_BASE}/locations/{location_id}/sensors", 
+                    headers={"X-API-Key": API_KEY})
+    return r.json()["results"]
+
+def get_daily_sensor_values(location_id):
+    r = requests.get(f"{API_BASE}/locations/{location_id}/latest",
+                    headers={"X-API-Key": API_KEY})
+    return r.json()["results"]
+
 def get_daily_data():
     print("\nFetching daily data from OpenAQ...\n")
-    def get_daily_sensors(location_id):
-        r = requests.get(f"{API_BASE}/locations/{location_id}/sensors", 
-                        headers={"X-API-Key": API_KEY})
-        return r.json()["results"]
-
-    def get_daily_sensor_values(location_id):
-        r = requests.get(f"{API_BASE}/locations/{location_id}/latest",
-                        headers={"X-API-Key": API_KEY})
-        return r.json()["results"]
-
     daily_all = {}
     daily_data = {}
     row_data = []
+
     for location, location_id in LOC_DICT.items():
         print(f"\n-- Fetching data for {location} (ID: {location_id}) --\n")
         sensors = get_daily_sensors(location_id)
@@ -80,25 +81,19 @@ def get_daily_data():
 
 #get_daily_data()
 
+
+############TESTING FUNCTIONS BELOW###############
+
 def get_daily_data_test():
     print("\nFetching daily data from OpenAQ...\n")
-    def get_daily_sensors(location_id):
-        r = requests.get(f"{API_BASE}/locations/{location_id}/sensors", 
-                        headers={"X-API-Key": API_KEY})
-        return r.json()["results"]
-
-    def get_daily_sensor_values(location_id):
-        r = requests.get(f"{API_BASE}/locations/{location_id}/latest",
-                        headers={"X-API-Key": API_KEY})
-        return r.json()["results"]
-
     daily_all = {}
     daily_data = {}
     row_data = []
+
     for location, location_id in LOC_DICT.items():
         print(f"\n-- Fetching data for {location} (ID: {location_id}) --\n")
-        sensors = get_daily_sensors(location_id)
-        sensor_values = get_daily_sensor_values(location_id)
+        sensors, daily_sensors_code = Testing_get_daily_sensors(location_id, API_KEY)
+        sensor_values, daily_sensors_values_code = Testing_get_daily_sensor_values(location_id, API_KEY)
 
         for sensor in sensor_values:
             if sensor["sensorsId"] not in UNIT_LIST:
@@ -128,10 +123,54 @@ def get_daily_data_test():
 
                 daily_all[param] = daily_data[sid]
                 # print(f"Parameter: {param}, Data: {daily_data[sid]}")
-    return row_data
+    return row_data, daily_sensors_code, daily_sensors_values_code
 
+def Testing_get_daily_sensors(location_id, api_key):
+    r = requests.get(f"{API_BASE}/locations/{location_id}/sensors", 
+                    headers={"X-API-Key": api_key})
+    
+    if r.status_code == 401:
+        print("Error: Unauthorized - Check your API key")
+        return r.json(), r.status_code
+    elif r.status_code != 200:
+        print(f"""Error: {r.status_code}, Check what it means here:
+            401 - Unauthorized
+            403 - Forbidden
+            404 - Not Found
+            405 - Method Not Allowed
+            408 - Request Timeout
+            410 - Gone
+            422 - Unprocessable Content
+            429 - Too Many Requests
+              """)
+        return r.json(), r.status_code
+    elif "results" not in r.json() and r.status_code == 200:
+        print("Error: 'results' key not in response")
+        return r.json(), r.status_code
 
-# for param, data in daily_all.items():
-#     print(f"\nParameter: {param}, Data: {data}")
+    return r.json()["results"], r.status_code
 
+def Testing_get_daily_sensor_values(location_id, api_key):
+    r = requests.get(f"{API_BASE}/locations/{location_id}/latest",
+                    headers={"X-API-Key": api_key})
+    
+    if r.status_code == 401:
+        print("Error: Unauthorized - Check your API key")
+        return r.json(), r.status_code
+    elif r.status_code != 200:
+        print(f"""Error: {r.status_code}, Check what it means here:
+            401 - Unauthorized
+            403 - Forbidden
+            404 - Not Found
+            405 - Method Not Allowed
+            408 - Request Timeout
+            410 - Gone
+            422 - Unprocessable Content
+            429 - Too Many Requests
+              """)
+        return r.json(), r.status_code
+    elif "results" not in r.json() and r.status_code == 200:
+        print("Error: 'results' key not in response, likley bad api endpoint")
+        return r.json(), r.status_code
 
+    return r.json()["results"], r.status_code
